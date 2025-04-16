@@ -14,8 +14,6 @@ use DatabasePlugin\Utils;
 
 register_activation_hook(__FILE__, 'dbPlugin_activate');
 
-// Define plugin version and constants
-define('DBPLUGIN_FILE', __FILE__);
 
 // Enable error reporting
 ini_set('display_errors', 1);

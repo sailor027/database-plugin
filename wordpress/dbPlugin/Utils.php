@@ -3,6 +3,7 @@ namespace DatabasePlugin;
 
 class Utils{
     // Define plugin paths securely
+    const DBPLUGIN_FILE = __FILE__;
     const PLUGIN_DIR = wp_normalize_path(plugin_dir_path(DBPLUGIN_FILE));
     const RESOURCE_FILE = PLUGIN_DIR . 'crisisResources.csv';
     const DOCS_FILE = PLUGIN_DIR . 'README.md';
