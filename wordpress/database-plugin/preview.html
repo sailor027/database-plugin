@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resource Database Preview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="resources-search-container">
+        <div class="search-controls">
+            <div class="search-wrapper">
+                <input type="text" placeholder="Search database...">
+                <button type="button" class="search-button" aria-label="Search">
+                    <img src="media/search.svg" alt="Search" width="20" height="20">
+                </button>
+            </div>
+            <button type="button" class="reset-button">
+                <span>×</span> Reset Filters
+            </button>
+        </div>
+
+        <div class="tags-container" id="filterTags">
+            <button type="button" class="tag">Mental Health</button>
+            <button type="button" class="tag selected">Crisis Support</button>
+            <button type="button" class="tag">24/7 Support</button>
+            <button type="button" class="tag">LGBTQ+</button>
+            <button type="button" class="tag">Youth</button>
+            <button type="button" class="tag">Domestic Violence</button>
+        </div>
+    </div>
+
+    <div id="resourceTableContainer" data-version="2.8.3">
+        <table class="csv-table">
+            <thead>
+                <tr>
+                    <th>Resource</th>
+                    <th>Hotline Phone/Text</th>
+                    <th>Resource Description</th>
+                    <th>Keywords</th>
+                </tr>
+            </thead>
+            <tbody id="resourceTableBody">
+                <tr>
+                    <td>
+                        <a href="https://www.crisistextline.org" target="_blank" rel="noopener noreferrer">Crisis Text Line</a>
+                    </td>
+                    <td>Text HOME to 741741</td>
+                    <td>24/7 text support with trained crisis counselors</td>
+                    <td>
+                        <div class="tag-container">
+                            <button type="button" class="table-tag" onclick="toggleTagFilter('Crisis Support')" data-tag="Crisis Support">Crisis Support</button>
+                            <button type="button" class="table-tag" onclick="toggleTagFilter('24/7 Support')" data-tag="24/7 Support">24/7 Support</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a href="https://988lifeline.org" target="_blank" rel="noopener noreferrer">National Suicide Prevention Lifeline</a>
+                    </td>
+                    <td>988</td>
+                    <td>24/7 phone support for those in suicidal crisis</td>
+                    <td>
+                        <div class="tag-container">
+                            <button type="button" class="table-tag" onclick="toggleTagFilter('Crisis Support')" data-tag="Crisis Support">Crisis Support</button>
+                            <button type="button" class="table-tag" onclick="toggleTagFilter('Mental Health')" data-tag="Mental Health">Mental Health</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a href="https://www.thetrevorproject.org" target="_blank" rel="noopener noreferrer">Trevor Project</a>
+                    </td>
+                    <td>1-866-488-7386</td>
+                    <td>Crisis intervention for LGBTQ young people</td>
+                    <td>
+                        <div class="tag-container">
+                            <button type="button" class="table-tag" onclick="toggleTagFilter('LGBTQ+')" data-tag="LGBTQ+">LGBTQ+</button>
+                            <button type="button" class="table-tag" onclick="toggleTagFilter('Youth')" data-tag="Youth">Youth</button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="pagination">
+            <button class="page-np" onclick="changePage(1)">&lt;</button>
+            <button class="page-n" onclick="changePage(1)">1</button>
+            <span class="current-page">2</span>
+            <button class="page-n" onclick="changePage(3)">3</button>
+            <button class="page-np" onclick="changePage(3)">&gt;</button>
+        </div>
+    </div>
+
+    <script>
+    // Simple toggle function for preview purposes
+    function toggleTagFilter(tag) {
+        const buttons = document.querySelectorAll(`[data-tag="${tag}"]`);
+        buttons.forEach(button => {
+            button.classList.toggle('selected');
+        });
+    }
+    
+    // Simple page change function for preview purposes
+    function changePage(page) {
+        document.querySelector('.current-page').textContent = page;
+    }
+    </script>
+</body>
+</html>
