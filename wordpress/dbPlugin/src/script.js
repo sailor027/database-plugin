@@ -1,14 +1,12 @@
 /**
- * This script manages the tag selection and search functionality for a database plugin.
- * It allows users to filter results based on selected tags and a search keyword.
- * The selected tags are reflected in the URL parameters, enabling easy sharing of filtered results.
- * The script also handles the initialization of the tag state based on URL parameters.
- * It uses event delegation to handle clicks on tags and updates the UI accordingly.
+ * Database Plugin
+ * Main frontend script for tag selection, search functionality and pagination
  */
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize state management
     let selectedTags = new Set();
+    const searchInput = document.getElementById('resourceSearch');
     
     // Load initial state from URL parameters
     const urlParams = new URLSearchParams(window.location.search);
@@ -23,17 +21,29 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Set up tag handlers
-    function initializeTagHandlers() {
-        document.querySelectorAll('.tag, .table-tag').forEach(tag => {
-            tag.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                const tagValue = this.getAttribute('data-tag');
-                toggleTag(tagValue);
-            });
-        });
-    }
+    // Set up tag handlers using event delegation
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('tag') || e.target.classList.contains('table-tag')) {
+            e.preventDefault();
+            const tagValue = e.target.getAttribute('data-tag');
+            toggleTag(tagValue);
+        }
+    });
+    
+    // Add pagination event handlers
+    window.changePage = function(pageNum) {
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.set('pg', pageNum);
+        
+        // Preserve search and tags
+        const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
+        window.location.href = newUrl;
+    };
+    
+    // Reset all filters
+    window.resetFilters = function() {
+        window.location.href = window.location.pathname;
+    };
 
     // Toggle tag selection with UI update
     function toggleTag(tagValue) {
@@ -60,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const urlParams = new URLSearchParams();
         
         // Add search parameter if present
-        const searchValue = searchInput?.value.trim() || '';
+        const searchValue = searchInput ? searchInput.value.trim() : '';
         if (searchValue) {
             urlParams.set('kw', searchValue);
         }
@@ -82,7 +92,4 @@ document.addEventListener('DOMContentLoaded', function() {
         const newUrl = `${window.location.pathname}${urlParams.toString() ? '?' + urlParams.toString() : ''}`;
         window.location.href = newUrl;
     }
-
-    // Initialize tag handlers
-    initializeTagHandlers();
 });
