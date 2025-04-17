@@ -20,18 +20,19 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+add_action('wp_enqueue_styles', 'dbPlugin_enqueueStyles');
+add_action('wp_enqueue_scripts', 'dbPlugin_enqueueScript');
 
+//--------------------------------------------------------------------------------------------
+// Enqueue custom styles and scripts
+function dbPlugin_enqueueStyles() {
+    wp_enqueue_style(
+        'dbPlugin-styles', 
+        plugin_dir_url(DBPLUGIN_FILE) . 'style.css',
+        array()
+    );
+}
 
-    //--------------------------------------------------------------------------------------------
-    // Enqueue custom styles and scripts
-    function dbPlugin_enqueueStyles() {
-        wp_enqueue_style(
-            'dbPlugin-styles', 
-            plugin_dir_url(DBPLUGIN_FILE) . 'style.css',
-            array()
-        );
-    }
-    add_action('wp_enqueue_scripts', 'dbPlugin_enqueueStyles');
 
     function dbPlugin_enqueueScript() {
         wp_enqueue_script(
@@ -49,7 +50,6 @@ error_reporting(E_ALL);
             )
         );
     }
-    add_action('wp_enqueue_scripts', 'dbPlugin_enqueueScript');
 
     //--------------------------------------------------------------------------------------------
     // AJAX handlers
@@ -103,10 +103,6 @@ error_reporting(E_ALL);
     //--------------------------------------------------------------------------------------------
     // Register shortcode
     add_shortcode('displayResources', 'displayResourcesShortcode');
-
-    
-
-    
 
     // Admin menu functions
     add_action('admin_menu', 'dbPlugin_pluginMenu');

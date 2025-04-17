@@ -1,3 +1,11 @@
+/**
+ * This script manages the tag selection and search functionality for a database plugin.
+ * It allows users to filter results based on selected tags and a search keyword.
+ * The selected tags are reflected in the URL parameters, enabling easy sharing of filtered results.
+ * The script also handles the initialization of the tag state based on URL parameters.
+ * It uses event delegation to handle clicks on tags and updates the UI accordingly.
+ */
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize state management
     let selectedTags = new Set();
