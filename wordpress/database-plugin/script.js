@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add click event to tag buttons
     tagButtons.forEach(function(button) {
         button.addEventListener('click', function() {
-            const tagValue = this.getAttribute('data-tag');
+            const tagValue = button.getAttribute('data-tag');
             toggleTagFilter(tagValue);
         });
     });
@@ -33,7 +33,8 @@ function toggleTagFilter(tagValue) {
     const currentTags = urlParams.getAll('tags');
     
     // Check if tag is already selected
-    const tagIndex = currentTags.findIndex(tag => decodeURIComponent(tag) === tagValue);
+    const decodedTags = currentTags.map(tag => decodeURIComponent(tag));
+    const tagIndex = decodedTags.findIndex(tag => tag === tagValue);
     
     if (tagIndex > -1) {
         // Remove tag if already selected
@@ -45,18 +46,18 @@ function toggleTagFilter(tagValue) {
         urlParams.append('tags', tagValue);
     }
     
-    // Keep search parameter if present
     const searchInput = document.getElementById('resourceSearch');
     if (searchInput && searchInput.value.trim()) {
-        urlParams.set('kw', searchInput.value.trim());
+        const sanitizedValue = encodeURIComponent(searchInput.value.trim());
+        urlParams.set('kw', sanitizedValue);
     }
     
     // Remove page parameter to go back to first page
     urlParams.delete('pg');
-    
-    // Update URL
-    const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
-    window.location.href = newUrl;
+    // Update URL without reloading
+    const newUpdatedUrl = `${window.location.pathname}?${urlParams.toString()}`;
+    history.pushState(null, '', newUpdatedUrl);
+    window.location.href = newUpdatedUrl;
 }
 
 /**
@@ -65,12 +66,11 @@ function toggleTagFilter(tagValue) {
 function submitSearch() {
     const urlParams = new URLSearchParams(window.location.search);
     
-    // Get search parameter
     const searchInput = document.getElementById('resourceSearch');
     if (searchInput) {
-        const searchValue = searchInput.value.trim();
-        if (searchValue) {
-            urlParams.set('kw', searchValue);
+        if (searchInput.value.trim()) {
+            const sanitizedValue = encodeURIComponent(searchValue);
+            urlParams.set('kw', sanitizedValue);
         } else {
             urlParams.delete('kw');
         }
@@ -83,12 +83,17 @@ function submitSearch() {
     urlParams.delete('pg');
     
     // Update URL
-    const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
-    window.location.href = newUrl;
+    const updatedUrl = `${window.location.pathname}?${urlParams.toString()}`;
+    window.location.href = updatedUrl;
 }
 
 /**
  * Reset all filters
+ * 
+ * This function resets all applied filters by navigating to the base URL of the current page.
+ * It removes any query parameters and hash fragments from the URL, effectively clearing
+ * all search keywords, selected tags, and pagination states. The page is reloaded to reflect
+ * the reset state.
  */
 function resetFilters() {
     window.location.href = window.location.pathname;
