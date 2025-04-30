@@ -29,6 +29,9 @@ function dbPlugin_display_resources($atts = []) {
     $searchQuery = isset($_GET['kw']) ? htmlspecialchars($_GET['kw']) : '';
     $searchTerms = array_filter(explode(' ', $searchQuery));
     $selectedTags = isset($_GET['tags']) ? dbPlugin_sanitize_tag_array($_GET['tags']) : [];
+    
+    // Debug log the selected tags
+    error_log("CSV Mode - Selected tags from URL: " . print_r($selectedTags, true));
 
     // Initialize counters and arrays
     $totalRows = 0;

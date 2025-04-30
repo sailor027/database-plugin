@@ -41,6 +41,9 @@ function dbPlugin_display_resources_db($atts = []) {
     $searchTerms = array_filter(explode(' ', $searchQuery));
     $selectedTags = isset($_GET['tags']) ? dbPlugin_sanitize_tag_array($_GET['tags']) : [];
     
+    // Debug log tag selection
+    error_log("Selected tags from URL: " . print_r($selectedTags, true));
+    
     // Set up pagination
     $itemsPerPage = 10;
     $currentPage = isset($_GET['pg']) ? max(1, intval($_GET['pg'])) : 1;

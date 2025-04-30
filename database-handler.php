@@ -242,6 +242,9 @@ class ResourceDatabaseHandler {
             $stmt = $this->conn->query("SELECT name FROM tags ORDER BY name");
             $allTags = $stmt->fetchAll(PDO::FETCH_COLUMN);
             
+            // Debug - log all available tags
+            error_log("All available tags in database: " . implode(", ", $allTags));
+            
             // Build query
             $baseQuery = "
                 SELECT DISTINCT r.id, r.name, r.phone, r.description, r.website
@@ -273,7 +276,8 @@ class ResourceDatabaseHandler {
                     $params["tag$i"] = $selectedTags[$i];
                 }
                 
-                $whereClauses[] = "t.name IN (" . implode(", ", $tagPlaceholders) . ")";
+                // Note: We don't need the first IN clause which would match ANY of the tags
+                // $whereClauses[] = "t.name IN (" . implode(", ", $tagPlaceholders) . ")";
                 
                 // Always include resources that have ALL the selected tags, not just any of them
                 $tagCountSubquery = "
@@ -285,6 +289,11 @@ class ResourceDatabaseHandler {
                     HAVING COUNT(DISTINCT t2.name) = " . count($selectedTags);
                     
                 $whereClauses[] = "r.id IN ($tagCountSubquery)";
+                
+                // Debug - log the SQL query and the tag values
+                error_log("Selected tags: " . implode(", ", $selectedTags));
+                error_log("Tag count subquery: " . $tagCountSubquery);
+                error_log("Total tags selected: " . count($selectedTags));
             }
             
             // Add search filtering
