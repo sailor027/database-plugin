@@ -5,6 +5,7 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeEventListeners();
+    applyTagSelectionFromUrl();
 });
 
 /**
@@ -166,4 +167,58 @@ function changePage(pageNum) {
     
     const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
     window.location.href = newUrl;
+}
+
+/**
+ * Apply tag selection from URL
+ * 
+ * This function explicitly applies the 'selected' class to tag elements
+ * based on the tags parameter in the URL. This ensures tags are visually
+ * highlighted when they're active in the filtering.
+ */
+function applyTagSelectionFromUrl() {
+    // Get selected tags from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const selectedTags = urlParams.getAll('tags');
+    
+    if (!selectedTags || selectedTags.length === 0) {
+        return; // No tags selected
+    }
+    
+    console.log('Selected tags from URL:', selectedTags);
+    
+    // Process each tag in the DOM
+    const allTagElements = document.querySelectorAll('.tag, .table-tag');
+    
+    allTagElements.forEach(tagElement => {
+        const elementTagValue = tagElement.getAttribute('data-tag');
+        if (!elementTagValue) return;
+        
+        // Special case for LGBTQ+
+        const isLgbtqTag = elementTagValue.toLowerCase().includes('lgbtq');
+        
+        // Check if this tag is in the selected tags list
+        const isSelected = selectedTags.some(urlTag => {
+            const decodedUrlTag = decodeURIComponent(urlTag);
+            
+            // Special handling for LGBTQ+
+            if (isLgbtqTag) {
+                console.log('Comparing LGBTQ+ tag:', 
+                    elementTagValue, '==', decodedUrlTag,
+                    'Result:', elementTagValue.toLowerCase() === decodedUrlTag.toLowerCase().replace(' ', '+'));
+                return elementTagValue.toLowerCase() === decodedUrlTag.toLowerCase().replace(' ', '+');
+            }
+            
+            // Standard case-insensitive comparison for other tags
+            return elementTagValue.toLowerCase() === decodedUrlTag.toLowerCase();
+        });
+        
+        // Apply or remove 'selected' class
+        if (isSelected) {
+            tagElement.classList.add('selected');
+            console.log('Applied selected class to tag:', elementTagValue);
+        } else {
+            tagElement.classList.remove('selected');
+        }
+    });
 }

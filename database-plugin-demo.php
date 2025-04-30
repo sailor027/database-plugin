@@ -174,11 +174,22 @@ function dbPlugin_display_resources($atts = []) {
             // Case-insensitive comparison for selected tags
             $tagLower = strtolower($tag);
             $selectedTagsLower = array_map('strtolower', $selectedTags);
-            $isSelected = in_array($tagLower, $selectedTagsLower);
             
-            // Debug for LGBTQ tag
+            // Special handling for LGBTQ+ tag
             if (stripos($tag, 'LGBTQ') !== false) {
+                $isSelected = false;
+                foreach ($selectedTagsLower as $selectedTag) {
+                    // Compare ignoring spaces and case
+                    if (str_replace(' ', '+', $tagLower) === str_replace(' ', '+', $selectedTag)) {
+                        $isSelected = true;
+                        break;
+                    }
+                }
                 error_log("LGBTQ+ filter tag: '$tag', isSelected: " . ($isSelected ? 'true' : 'false'));
+                error_log("Selected tags for comparison: " . implode(', ', $selectedTagsLower));
+            } else {
+                // Normal case for other tags
+                $isSelected = in_array($tagLower, $selectedTagsLower);
             }
             
             printf(
@@ -236,7 +247,24 @@ function dbPlugin_display_resources($atts = []) {
                 // Case-insensitive comparison for selected tags
                 $keywordLower = strtolower($keyword);
                 $selectedTagsLower = array_map('strtolower', $selectedTags);
-                $isSelected = in_array($keywordLower, $selectedTagsLower);
+                
+                // Special handling for LGBTQ+ tag in the table display
+                if (stripos($keyword, 'LGBTQ') !== false) {
+                    $isSelected = false;
+                    foreach ($selectedTagsLower as $selectedTag) {
+                        // Compare ignoring spaces and case, but preserving the + character
+                        if (str_replace(' ', '+', $keywordLower) === str_replace(' ', '+', $selectedTag)) {
+                            $isSelected = true;
+                            break;
+                        }
+                    }
+                    if ($isSelected) {
+                        error_log("CSV Mode - LGBTQ+ tag selected in table display: '$keyword'");
+                    }
+                } else {
+                    // Normal case for other tags
+                    $isSelected = in_array($keywordLower, $selectedTagsLower);
+                }
                 
                 printf(
                     '<button type="button" class="table-tag%s" data-tag="%s" title="Click to %s filter">%s</button>',
