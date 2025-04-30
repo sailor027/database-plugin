@@ -45,6 +45,16 @@ function dbPlugin_display_resources($atts = []) {
     
     // Debug log the selected tags
     error_log("CSV Mode - Selected tags from URL: " . print_r($selectedTags, true));
+    error_log("CSV Mode - Raw URL params: " . print_r($_GET, true));
+    
+    // Special case handling for LGBTQ+
+    if (!empty($_GET['tags']) && is_array($_GET['tags'])) {
+        foreach ($_GET['tags'] as $tag) {
+            if (stripos($tag, 'lgbtq') !== false) {
+                error_log("CSV Mode - Found LGBTQ tag in URL: '$tag'");
+            }
+        }
+    }
 
     // Initialize counters and arrays
     $totalRows = 0;
