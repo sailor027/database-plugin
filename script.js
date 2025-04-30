@@ -47,12 +47,25 @@ function toggleTagFilter(tagValue) {
     // Log for debugging
     console.log('Toggle tag:', tagValue);
     console.log('Current tags:', currentTags);
+    console.log('Raw URL params:', window.location.search);
     
-    // Check if tag is already selected
-    const decodedTags = currentTags.map(tag => decodeURIComponent(tag));
-    console.log('Decoded tags:', decodedTags);
+    // Special handling for LGBTQ+ tag (+ is a special character in URLs)
+    // We need to decode it properly as "+" gets converted to space in URL parameters
+    const normalizedCurrentTags = currentTags.map(tag => {
+        // Replace any spaces that might have been "+" in the original tag
+        return decodeURIComponent(tag).replace(/\s+/g, '+');
+    });
     
-    const tagIndex = decodedTags.findIndex(tag => tag === tagValue);
+    console.log('Normalized tags:', normalizedCurrentTags);
+    
+    // Handle special case for LGBTQ+ tag
+    const normalizedTagValue = tagValue.includes('LGBTQ') ? tagValue.replace(/\s+/g, '+') : tagValue;
+    console.log('Normalized tag value:', normalizedTagValue);
+    
+    // Check using case-insensitive comparison
+    const tagIndex = normalizedCurrentTags.findIndex(
+        tag => tag.toLowerCase() === normalizedTagValue.toLowerCase()
+    );
     console.log('Tag index:', tagIndex);
     
     if (tagIndex > -1) {
