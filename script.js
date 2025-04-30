@@ -5,7 +5,11 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeEventListeners();
+    // Mark the selected tags based on URL parameters
     applyTagSelectionFromUrl();
+    
+    // Special case for LGBTQ+ tag - handle it directly
+    handleLgbtqTagSelection();
 });
 
 /**
@@ -216,9 +220,64 @@ function applyTagSelectionFromUrl() {
         // Apply or remove 'selected' class
         if (isSelected) {
             tagElement.classList.add('selected');
+            // Also set a data attribute as a fallback mechanism
+            tagElement.setAttribute('data-selected', 'true');
             console.log('Applied selected class to tag:', elementTagValue);
         } else {
             tagElement.classList.remove('selected');
+            tagElement.removeAttribute('data-selected');
         }
     });
+}
+
+/**
+ * Special handler for LGBTQ+ tag
+ * 
+ * This function directly looks for the LGBTQ+ tag in the URL and
+ * applies highlighting to any matching tags in the DOM.
+ */
+function handleLgbtqTagSelection() {
+    const url = window.location.href;
+    const hasLgbtqTag = url.includes('LGBTQ%2B') || url.includes('lgbtq%2B');
+    
+    if (!hasLgbtqTag) {
+        console.log('No LGBTQ+ tag in URL');
+        return;
+    }
+    
+    console.log('LGBTQ+ tag found in URL, applying direct selection');
+    
+    // Find all LGBTQ+ tag elements
+    const allTagElements = document.querySelectorAll('.tag, .table-tag');
+    
+    allTagElements.forEach(tagElement => {
+        const tagValue = tagElement.getAttribute('data-tag');
+        if (!tagValue) return;
+        
+        if (tagValue.toUpperCase() === 'LGBTQ+') {
+            console.log('Found LGBTQ+ tag element, forcing selection state');
+            
+            // Apply both class and data attribute for maximum compatibility
+            tagElement.classList.add('selected');
+            tagElement.setAttribute('data-selected', 'true');
+            
+            // Also add direct inline style for additional force
+            tagElement.style.backgroundColor = 'var(--grn2)';
+            tagElement.style.color = 'white';
+            tagElement.style.fontWeight = 'bold';
+            tagElement.style.border = '2px solid var(--org)';
+            tagElement.style.transform = 'translateY(-2px)';
+            tagElement.style.boxShadow = '0 3px 8px rgba(0,0,0,0.15)';
+        }
+    });
+    
+    // Add a small delay to ensure styles are applied after page load
+    setTimeout(() => {
+        const lgbtqTags = document.querySelectorAll('[data-tag="LGBTQ+"]');
+        lgbtqTags.forEach(tag => {
+            console.log('Re-applying styles to LGBTQ+ tag');
+            tag.classList.add('selected');
+            tag.setAttribute('data-selected', 'true');
+        });
+    }, 500);
 }
