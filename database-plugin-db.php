@@ -108,12 +108,22 @@ function dbPlugin_display_resources_db($atts = []) {
             // Check if tag is in selected tags using case-insensitive comparison
             $tagLower = strtolower($tag);
             $selectedTagsLower = array_map('strtolower', $selectedTags);
-            $isSelected = in_array($tagLower, $selectedTagsLower);
             
-            // Debug logging
-            if ($tag === 'LGBTQ+' || $tag === 'LGBTQ') {
+            // Special handling for LGBTQ+ tag
+            if (stripos($tag, 'LGBTQ') !== false) {
+                $isSelected = false;
+                foreach ($selectedTagsLower as $selectedTag) {
+                    // Compare ignoring spaces and case, but preserving the + character
+                    if (str_replace(' ', '+', $tagLower) === str_replace(' ', '+', $selectedTag)) {
+                        $isSelected = true;
+                        break;
+                    }
+                }
                 error_log("LGBTQ+ tag check: Tag = '$tag', isSelected = " . ($isSelected ? 'true' : 'false'));
                 error_log("Selected tags (lowercase): " . implode(', ', $selectedTagsLower));
+            } else {
+                // Normal case for other tags
+                $isSelected = in_array($tagLower, $selectedTagsLower);
             }
             
             printf(
@@ -171,7 +181,21 @@ function dbPlugin_display_resources_db($atts = []) {
                 // Check if tag is in selected tags using case-insensitive comparison
                 $tagLower = strtolower($tag);
                 $selectedTagsLower = array_map('strtolower', $selectedTags);
-                $isSelected = in_array($tagLower, $selectedTagsLower);
+                
+                // Special handling for LGBTQ+ tag in the table display
+                if (stripos($tag, 'LGBTQ') !== false) {
+                    $isSelected = false;
+                    foreach ($selectedTagsLower as $selectedTag) {
+                        // Compare ignoring spaces and case, but preserving the + character
+                        if (str_replace(' ', '+', $tagLower) === str_replace(' ', '+', $selectedTag)) {
+                            $isSelected = true;
+                            break;
+                        }
+                    }
+                } else {
+                    // Normal case for other tags
+                    $isSelected = in_array($tagLower, $selectedTagsLower);
+                }
                 
                 printf(
                     '<button type="button" class="table-tag%s" data-tag="%s" title="Click to %s filter">%s</button>',
