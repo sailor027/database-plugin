@@ -111,18 +111,46 @@ function dbPlugin_display_resources($atts = []) {
             if (!empty($selectedTags) && isset($row[3])) {
                 $rowTags = array_map('trim', explode(',', $row[3]));
                 
-                // Convert to lowercase for case-insensitive comparison
-                $rowTagsLower = array_map('strtolower', $rowTags);
-                $selectedTagsLower = array_map('strtolower', $selectedTags);
+                // Normalize tags for proper comparison
+                $rowTagsNormalized = array_map(function($tag) {
+                    return strtolower(str_replace(' ', '+', $tag));
+                }, $rowTags);
+                
+                $selectedTagsNormalized = array_map(function($tag) {
+                    return strtolower(str_replace(' ', '+', $tag));
+                }, $selectedTags);
                 
                 // Debug log for LGBTQ+ tag
                 if (stripos($row[3], 'LGBTQ') !== false) {
                     error_log("LGBTQ+ resource found: " . $row[0]);
-                    error_log("Row tags: " . implode(', ', $rowTags));
-                    error_log("Selected tags: " . implode(', ', $selectedTags));
+                    error_log("Row tags normalized: " . implode(', ', $rowTagsNormalized));
+                    error_log("Selected tags normalized: " . implode(', ', $selectedTagsNormalized));
                 }
                 
-                $matchesTags = count(array_intersect($selectedTagsLower, $rowTagsLower)) === count($selectedTags);
+                // Check if ALL selected tags are in the row tags
+                $matchCount = 0;
+                foreach ($selectedTagsNormalized as $selectedTag) {
+                    // Special handling for LGBTQ+
+                    if (stripos($selectedTag, 'lgbtq') !== false) {
+                        foreach ($rowTagsNormalized as $rowTag) {
+                            if (stripos($rowTag, 'lgbtq') !== false) {
+                                $matchCount++;
+                                break;
+                            }
+                        }
+                    } 
+                    // Standard tag comparison
+                    else if (in_array($selectedTag, $rowTagsNormalized)) {
+                        $matchCount++;
+                    }
+                }
+                
+                $matchesTags = ($matchCount === count($selectedTagsNormalized));
+                
+                // Explicit debug for LGBTQ+ filtering
+                if ($hasLgbtqTag && stripos($row[3], 'LGBTQ') !== false) {
+                    error_log("LGBTQ+ resource match result: " . ($matchesTags ? 'TRUE' : 'FALSE') . " for " . $row[0]);
+                }
             }
             
             // Add matching rows to filtered results
