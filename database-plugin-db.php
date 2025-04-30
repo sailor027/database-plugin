@@ -93,7 +93,17 @@ function dbPlugin_display_resources_db($atts = []) {
     echo '<div class="tags-container" id="filterTags">';
     foreach ($allTags as $tag) {
         if (!empty($tag)) {
-            $isSelected = in_array($tag, $selectedTags);
+            // Check if tag is in selected tags using case-insensitive comparison
+            $tagLower = strtolower($tag);
+            $selectedTagsLower = array_map('strtolower', $selectedTags);
+            $isSelected = in_array($tagLower, $selectedTagsLower);
+            
+            // Debug logging
+            if ($tag === 'LGBTQ+' || $tag === 'LGBTQ') {
+                error_log("LGBTQ+ tag check: Tag = '$tag', isSelected = " . ($isSelected ? 'true' : 'false'));
+                error_log("Selected tags (lowercase): " . implode(', ', $selectedTagsLower));
+            }
+            
             printf(
                 '<button type="button" class="tag%s" data-tag="%s" title="Click to %s filter">%s</button>',
                 $isSelected ? ' selected' : '',
@@ -146,7 +156,11 @@ function dbPlugin_display_resources_db($atts = []) {
         echo '<td><div class="tag-container">';
         foreach ($tags as $tag) {
             if (!empty($tag)) {
-                $isSelected = in_array($tag, $selectedTags);
+                // Check if tag is in selected tags using case-insensitive comparison
+                $tagLower = strtolower($tag);
+                $selectedTagsLower = array_map('strtolower', $selectedTags);
+                $isSelected = in_array($tagLower, $selectedTagsLower);
+                
                 printf(
                     '<button type="button" class="table-tag%s" data-tag="%s" title="Click to %s filter">%s</button>',
                     $isSelected ? ' selected' : '',

@@ -17,6 +17,10 @@ function initializeEventListeners() {
         // Check if clicked element is a tag button
         if (e.target && (e.target.classList.contains('tag') || e.target.classList.contains('table-tag'))) {
             const tagValue = e.target.getAttribute('data-tag');
+            console.log('Tag clicked:', tagValue);
+            console.log('Tag element classes:', e.target.className);
+            console.log('Tag is selected:', e.target.classList.contains('selected'));
+            
             if (tagValue) {
                 toggleTagFilter(tagValue);
             }
