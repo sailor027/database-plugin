@@ -73,9 +73,22 @@ function dbPlugin_sanitize_tag_array($tags) {
         return [];
     }
     
-    return array_map(function($tag) {
+    $sanitizedTags = array_map(function($tag) {
+        // Special handling for LGBTQ+ tag
+        if (stripos($tag, 'lgbtq') !== false) {
+            // Ensure consistent formatting for LGBTQ+ tag
+            error_log("Tag sanitization - LGBTQ+ tag detected: " . $tag);
+            return 'LGBTQ+';
+        }
+        
+        // For all other tags, normal sanitization
         return sanitize_text_field(urldecode($tag));
     }, $tags);
+    
+    error_log("dbPlugin_sanitize_tag_array - Before: " . implode(', ', $tags));
+    error_log("dbPlugin_sanitize_tag_array - After: " . implode(', ', $sanitizedTags));
+    
+    return $sanitizedTags;
 }
 
 /**
@@ -133,7 +146,43 @@ function dbPlugin_display_resources($atts = []) {
             $matchesTags = empty($selectedTags);
             if (!empty($selectedTags) && isset($row[3])) {
                 $rowTags = array_map('trim', explode(',', $row[3]));
-                $matchesTags = count(array_intersect($selectedTags, $rowTags)) === count($selectedTags);
+                
+                // Normalize both sets of tags for comparison
+                $rowTagsNormalized = array_map(function($tag) {
+                    return strtolower(str_replace(' ', '+', $tag));
+                }, $rowTags);
+                
+                $selectedTagsNormalized = array_map(function($tag) {
+                    return strtolower(str_replace(' ', '+', $tag));
+                }, $selectedTags);
+                
+                // Check if ALL selected tags match
+                $matchCount = 0;
+                foreach ($selectedTagsNormalized as $selectedTag) {
+                    // Special handling for LGBTQ+ tag
+                    if (stripos($selectedTag, 'lgbtq') !== false) {
+                        foreach ($rowTagsNormalized as $rowTag) {
+                            if (stripos($rowTag, 'lgbtq') !== false) {
+                                $matchCount++;
+                                break;
+                            }
+                        }
+                    } 
+                    // Standard tag comparison
+                    else if (in_array($selectedTag, $rowTagsNormalized)) {
+                        $matchCount++;
+                    }
+                }
+                
+                // Only match if ALL selected tags are found
+                $matchesTags = ($matchCount === count($selectedTagsNormalized));
+                
+                // Debug logging for LGBTQ+ tag filtering
+                if (in_array('LGBTQ+', $selectedTags)) {
+                    error_log("LGBTQ+ Tag Filter Check - Resource: " . $row[0]);
+                    error_log(" - Row Tags: " . implode(', ', $rowTags));
+                    error_log(" - Match result: " . ($matchesTags ? 'TRUE' : 'FALSE'));
+                }
             }
             
             // Add matching rows to filtered results
@@ -194,7 +243,22 @@ function dbPlugin_display_resources($atts = []) {
     echo '<div class="tags-container" id="filterTags">';
     foreach ($allTags as $tag) {
         if (!empty($tag)) {
-            $isSelected = in_array($tag, $selectedTags) ? 'selected' : '';
+            // Special handling for LGBTQ+ tag
+            $isSelected = '';
+            if (stripos($tag, 'LGBTQ') !== false) {
+                // Check if any selected tag contains LGBTQ (case-insensitive)
+                foreach ($selectedTags as $selectedTag) {
+                    if (stripos($selectedTag, 'LGBTQ') !== false) {
+                        $isSelected = 'selected';
+                        break;
+                    }
+                }
+                error_log("Tag display - LGBTQ+ tag '$tag' isSelected: " . ($isSelected ? 'true' : 'false'));
+            } 
+            // Standard comparison for other tags
+            else {
+                $isSelected = in_array($tag, $selectedTags) ? 'selected' : '';
+            }
             printf(
                 '<button type="button" class="tag %s" data-tag="%s">%s</button>',
                 esc_attr($isSelected),
@@ -246,7 +310,21 @@ function dbPlugin_display_resources($atts = []) {
         echo '<td><div class="tag-container">';
         foreach ($keywords as $keyword) {
             if (!empty($keyword)) {
-                $isSelected = in_array($keyword, $selectedTags) ? 'selected' : '';
+                // Special handling for LGBTQ+ tag
+                $isSelected = '';
+                if (stripos($keyword, 'LGBTQ') !== false) {
+                    // Check if any selected tag contains LGBTQ (case-insensitive)
+                    foreach ($selectedTags as $selectedTag) {
+                        if (stripos($selectedTag, 'LGBTQ') !== false) {
+                            $isSelected = 'selected';
+                            break;
+                        }
+                    }
+                } 
+                // Standard comparison for other tags
+                else {
+                    $isSelected = in_array($keyword, $selectedTags) ? 'selected' : '';
+                }
                 printf(
                     '<button type="button" class="table-tag %s" data-tag="%s">%s</button>',
                     esc_attr($isSelected),

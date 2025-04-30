@@ -64,6 +64,8 @@ function dbPlugin_display_resources($atts = []) {
     // Get selected tags
     $selectedTags = isset($_GET['tags']) ? dbPlugin_sanitize_tag_array($_GET['tags']) : [];
     
+    error_log("CSV Mode - Selected tags before filtering: " . print_r($selectedTags, true));
+    
     // Debug log the selected tags
     error_log("CSV Mode - Selected tags from URL: " . print_r($selectedTags, true));
     error_log("CSV Mode - Raw URL params: " . print_r($_GET, true));
