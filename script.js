@@ -40,17 +40,26 @@ function toggleTagFilter(tagValue) {
     const urlParams = new URLSearchParams(window.location.search);
     const currentTags = urlParams.getAll('tags');
     
+    // Log for debugging
+    console.log('Toggle tag:', tagValue);
+    console.log('Current tags:', currentTags);
+    
     // Check if tag is already selected
     const decodedTags = currentTags.map(tag => decodeURIComponent(tag));
+    console.log('Decoded tags:', decodedTags);
+    
     const tagIndex = decodedTags.findIndex(tag => tag === tagValue);
+    console.log('Tag index:', tagIndex);
     
     if (tagIndex > -1) {
         // Remove tag if already selected
+        console.log('Removing tag...');
         const newTags = currentTags.filter((tag, index) => index !== tagIndex);
         urlParams.delete('tags');
         newTags.forEach(tag => urlParams.append('tags', tag));
     } else {
         // Add tag if not selected
+        console.log('Adding tag...');
         urlParams.append('tags', tagValue);
     }
     
