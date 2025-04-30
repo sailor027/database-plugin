@@ -275,18 +275,16 @@ class ResourceDatabaseHandler {
                 
                 $whereClauses[] = "t.name IN (" . implode(", ", $tagPlaceholders) . ")";
                 
-                // Only include resources that have ALL the selected tags
-                if (count($selectedTags) > 1) {
-                    $tagCountSubquery = "
-                        SELECT resource_id 
-                        FROM resource_tags rt2 
-                        JOIN tags t2 ON rt2.tag_id = t2.id 
-                        WHERE t2.name IN (" . implode(", ", $tagPlaceholders) . ")
-                        GROUP BY resource_id 
-                        HAVING COUNT(DISTINCT t2.name) = " . count($selectedTags);
-                        
-                    $whereClauses[] = "r.id IN ($tagCountSubquery)";
-                }
+                // Always include resources that have ALL the selected tags, not just any of them
+                $tagCountSubquery = "
+                    SELECT resource_id 
+                    FROM resource_tags rt2 
+                    JOIN tags t2 ON rt2.tag_id = t2.id 
+                    WHERE t2.name IN (" . implode(", ", $tagPlaceholders) . ")
+                    GROUP BY resource_id 
+                    HAVING COUNT(DISTINCT t2.name) = " . count($selectedTags);
+                    
+                $whereClauses[] = "r.id IN ($tagCountSubquery)";
             }
             
             // Add search filtering
