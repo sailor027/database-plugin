@@ -273,7 +273,8 @@ class ResourceDatabaseHandler {
                 $tagPlaceholders = [];
                 for ($i = 0; $i < count($selectedTags); $i++) {
                     $tagPlaceholders[] = ":tag$i";
-                    $params["tag$i"] = $selectedTags[$i];
+                    // Convert to lowercase for case-insensitive comparison in SQL
+                    $params["tag$i"] = strtolower($selectedTags[$i]);
                 }
                 
                 // Note: We don't need the first IN clause which would match ANY of the tags
@@ -284,9 +285,9 @@ class ResourceDatabaseHandler {
                     SELECT resource_id 
                     FROM resource_tags rt2 
                     JOIN tags t2 ON rt2.tag_id = t2.id 
-                    WHERE t2.name IN (" . implode(", ", $tagPlaceholders) . ")
+                    WHERE LOWER(t2.name) IN (" . implode(", ", $tagPlaceholders) . ")
                     GROUP BY resource_id 
-                    HAVING COUNT(DISTINCT t2.name) = " . count($selectedTags);
+                    HAVING COUNT(DISTINCT LOWER(t2.name)) = " . count($selectedTags);
                     
                 $whereClauses[] = "r.id IN ($tagCountSubquery)";
                 
