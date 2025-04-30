@@ -62,6 +62,13 @@ function toggleTagFilter(tagValue) {
     
     // Remove page parameter to go back to first page
     urlParams.delete('pg');
+    
+    // Preserve the mode parameter if it exists
+    const mode = document.querySelector('.mode-button.active');
+    if (mode && mode.textContent.toLowerCase().includes('database')) {
+        urlParams.set('mode', 'db');
+    }
+    
     // Update URL and reload
     const newUpdatedUrl = `${window.location.pathname}?${urlParams.toString()}`;
     window.location.href = newUpdatedUrl;
@@ -86,6 +93,12 @@ function submitSearch() {
     // Remove page parameter to go back to first page
     urlParams.delete('pg');
     
+    // Preserve the mode parameter if it exists
+    const mode = document.querySelector('.mode-button.active');
+    if (mode && mode.textContent.toLowerCase().includes('database')) {
+        urlParams.set('mode', 'db');
+    }
+    
     // Update URL
     const updatedUrl = `${window.location.pathname}?${urlParams.toString()}`;
     window.location.href = updatedUrl;
@@ -94,24 +107,37 @@ function submitSearch() {
 /**
  * Reset all filters
  * 
- * This function resets all applied filters by navigating to the base URL of the current page.
- * It removes any query parameters and hash fragments from the URL, effectively clearing
- * all search keywords, selected tags, and pagination states. The page is reloaded to reflect
- * the reset state.
+ * This function resets all applied filters but preserves the current mode.
+ * It removes search keywords, selected tags, and pagination states, but keeps
+ * the database/CSV mode selection.
  */
 function resetFilters() {
-    window.location.href = window.location.pathname;
+    const mode = document.querySelector('.mode-button.active');
+    if (mode && mode.textContent.toLowerCase().includes('database')) {
+        window.location.href = window.location.pathname + '?mode=db';
+    } else {
+        window.location.href = window.location.pathname;
+    }
 }
 
 /**
  * Change page function for pagination
  * 
  * Sets the page parameter in the URL and navigates to the new page
- * while preserving other query parameters like search terms and tags.
+ * while preserving other query parameters like search terms, tags, and display mode.
  */
 function changePage(pageNum) {
     const urlParams = new URLSearchParams(window.location.search);
     urlParams.set('pg', pageNum);
+    
+    // Ensure mode is preserved if we're in database mode
+    if (!urlParams.has('mode')) {
+        const mode = document.querySelector('.mode-button.active');
+        if (mode && mode.textContent.toLowerCase().includes('database')) {
+            urlParams.set('mode', 'db');
+        }
+    }
+    
     const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
     window.location.href = newUrl;
 }
