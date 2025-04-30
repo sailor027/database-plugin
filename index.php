@@ -57,6 +57,9 @@
         
         <div class="plugin-container">
             <?php
+            // Include helper functions
+            include_once('./helper-functions.php');
+            
             // Set up WordPress-like environment constants for demo purposes
             define('ABSPATH', true);
             define('DBPLUGIN_DIR', './');

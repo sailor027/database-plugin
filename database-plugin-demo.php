@@ -3,31 +3,7 @@
  * Simplified version of the Database Plugin for demo purposes
  */
 
-/**
- * Sanitize and decode tag array
- */
-function dbPlugin_sanitize_tag_array($tags) {
-    if (!is_array($tags)) {
-        return [];
-    }
-    
-    $result = array_map(function($tag) {
-        // Decode the URL and handle special case for LGBTQ+
-        $decoded = urldecode($tag);
-        
-        // Special handling for LGBTQ+ tag - spaces might be '+' in the original tag
-        if (stripos($decoded, 'lgbtq') !== false) {
-            // Convert spaces back to + for LGBTQ+ case
-            $decoded = str_replace(' ', '+', $decoded);
-            error_log("CSV Mode - Fixed LGBTQ+ tag: '$decoded'");
-        }
-        
-        return $decoded;
-    }, $tags);
-    
-    error_log("CSV Mode - Sanitized tags: " . implode(", ", $result));
-    return $result;
-}
+// Note: Using dbPlugin_sanitize_tag_array() from helper-functions.php
 
 /**
  * Display resources function (simplified for demo)
