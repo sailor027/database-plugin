@@ -1,8 +1,16 @@
 # Database Plugin
 ## Plugin Information
 
-- Version: `2.9.7`
-- Last updated: `2024.01.21` ([version history](#version-history))
+- Version: `2.11.0`
+- Last updated: `2024.04.29` ([version history](#version-history))
+
+## Features
+- **CSV Import**: Automatically reads data from a CSV file in the plugin directory
+- **Responsive Table**: Display resources in a clean, responsive table format
+- **Search**: Search across all resource entries
+- **Tag Filtering**: Filter resources by clicking on tags
+- **Pagination**: Navigate through resources with built-in pagination
+- **Mobile Responsive**: Works well on all device sizes
 
 ## How to use the plugin
 1. Ensure the CSV file TESTthrive_resources.csv is placed in the plugin directory: `plugin_dir_path(__FILE__);`
@@ -16,6 +24,14 @@
 - If styles aren't applying: Clear WordPress cache and refresh
 
 ## CSV File Requirements
+The CSV file should have the following columns:
+1. Resource Name (required)
+2. Phone Number (optional)
+3. Description (required)
+4. Keywords (comma-separated tags for filtering)
+5. Website URL (optional)
+
+Other requirements:
 - UTF-8 encoding required
 - No empty rows allowed
 - Keywords must be comma-separated
