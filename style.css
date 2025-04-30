@@ -100,7 +100,7 @@ code {
     transform: translateY(-2px);
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
-.tag.selected {
+.tag.selected, .tag[data-selected="true"] {
     background-color: var(--grn2);
     color: white;
     border: 2px solid var(--org);
@@ -260,7 +260,7 @@ table.csv-table td {
     transform: translateY(-2px);
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
-.table-tag.selected {
+.table-tag.selected, .table-tag[data-selected="true"] {
     background-color: var(--grn2);
     color: white;
     border: 2px solid var(--org);

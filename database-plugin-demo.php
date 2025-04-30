@@ -41,20 +41,32 @@ function dbPlugin_display_resources($atts = []) {
     // Handle search and filtering
     $searchQuery = isset($_GET['kw']) ? htmlspecialchars($_GET['kw']) : '';
     $searchTerms = array_filter(explode(' ', $searchQuery));
+    
+    // Check if LGBTQ+ tag is in the URL
+    $hasLgbtqTag = false;
+    if (isset($_GET['tags']) && is_array($_GET['tags'])) {
+        foreach ($_GET['tags'] as $tag) {
+            if (stripos($tag, 'lgbtq') !== false) {
+                $hasLgbtqTag = true;
+                error_log("CSV Mode - Found LGBTQ tag in URL: '$tag'");
+                
+                // Ensure "+" is preserved if present
+                $_GET['tags'] = array_map(function($t) {
+                    if (stripos($t, 'lgbtq') !== false) {
+                        return 'LGBTQ+'; // Force exact format
+                    }
+                    return $t;
+                }, $_GET['tags']);
+            }
+        }
+    }
+    
+    // Get selected tags
     $selectedTags = isset($_GET['tags']) ? dbPlugin_sanitize_tag_array($_GET['tags']) : [];
     
     // Debug log the selected tags
     error_log("CSV Mode - Selected tags from URL: " . print_r($selectedTags, true));
     error_log("CSV Mode - Raw URL params: " . print_r($_GET, true));
-    
-    // Special case handling for LGBTQ+
-    if (!empty($_GET['tags']) && is_array($_GET['tags'])) {
-        foreach ($_GET['tags'] as $tag) {
-            if (stripos($tag, 'lgbtq') !== false) {
-                error_log("CSV Mode - Found LGBTQ tag in URL: '$tag'");
-            }
-        }
-    }
 
     // Initialize counters and arrays
     $totalRows = 0;
