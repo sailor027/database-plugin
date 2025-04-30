@@ -133,10 +133,10 @@ function dbPlugin_display_resources($atts = []) {
     echo '<div class="tags-container" id="filterTags">';
     foreach ($allTags as $tag) {
         if (!empty($tag)) {
-            $isSelected = in_array($tag, $selectedTags) ? 'selected' : '';
+            $isSelected = in_array($tag, $selectedTags);
             printf(
-                '<button type="button" class="tag %s" data-tag="%s" title="Click to %s filter">%s</button>',
-                htmlspecialchars($isSelected),
+                '<button type="button" class="tag%s" data-tag="%s" title="Click to %s filter">%s</button>',
+                $isSelected ? ' selected' : '',
                 htmlspecialchars($tag),
                 $isSelected ? 'remove from' : 'add to',
                 htmlspecialchars($tag)
@@ -186,10 +186,10 @@ function dbPlugin_display_resources($atts = []) {
         echo '<td><div class="tag-container">';
         foreach ($keywords as $keyword) {
             if (!empty($keyword)) {
-                $isSelected = in_array($keyword, $selectedTags) ? 'selected' : '';
+                $isSelected = in_array($keyword, $selectedTags);
                 printf(
-                    '<button type="button" class="table-tag %s" data-tag="%s" title="Click to %s filter">%s</button>',
-                    htmlspecialchars($isSelected),
+                    '<button type="button" class="table-tag%s" data-tag="%s" title="Click to %s filter">%s</button>',
+                    $isSelected ? ' selected' : '',
                     htmlspecialchars($keyword),
                     $isSelected ? 'remove from' : 'add to',
                     htmlspecialchars($keyword)

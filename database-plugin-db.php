@@ -16,7 +16,8 @@ function dbPlugin_sanitize_tag_array($tags) {
     }
     
     return array_map(function($tag) {
-        return htmlspecialchars(urldecode($tag));
+        // Only decode the URL, don't HTML escape for comparison
+        return urldecode($tag);
     }, $tags);
 }
 
@@ -89,10 +90,10 @@ function dbPlugin_display_resources_db($atts = []) {
     echo '<div class="tags-container" id="filterTags">';
     foreach ($allTags as $tag) {
         if (!empty($tag)) {
-            $isSelected = in_array($tag, $selectedTags) ? 'selected' : '';
+            $isSelected = in_array($tag, $selectedTags);
             printf(
-                '<button type="button" class="tag %s" data-tag="%s" title="Click to %s filter">%s</button>',
-                htmlspecialchars($isSelected),
+                '<button type="button" class="tag%s" data-tag="%s" title="Click to %s filter">%s</button>',
+                $isSelected ? ' selected' : '',
                 htmlspecialchars($tag),
                 $isSelected ? 'remove from' : 'add to',
                 htmlspecialchars($tag)
@@ -142,10 +143,10 @@ function dbPlugin_display_resources_db($atts = []) {
         echo '<td><div class="tag-container">';
         foreach ($tags as $tag) {
             if (!empty($tag)) {
-                $isSelected = in_array($tag, $selectedTags) ? 'selected' : '';
+                $isSelected = in_array($tag, $selectedTags);
                 printf(
-                    '<button type="button" class="table-tag %s" data-tag="%s" title="Click to %s filter">%s</button>',
-                    htmlspecialchars($isSelected),
+                    '<button type="button" class="table-tag%s" data-tag="%s" title="Click to %s filter">%s</button>',
+                    $isSelected ? ' selected' : '',
                     htmlspecialchars($tag),
                     $isSelected ? 'remove from' : 'add to',
                     htmlspecialchars($tag)
