@@ -47,42 +47,66 @@ function initializeEventListeners() {
  */
 function toggleTagFilter(tagValue) {
     const urlParams = new URLSearchParams(window.location.search);
-    const currentTags = urlParams.getAll('tags');
+    let currentTags = [];
+    
+    // Special handling for LGBTQ+ tag to ensure it's always treated consistently
+    const isLgbtqTag = tagValue.toUpperCase().includes('LGBTQ');
+    let normalizedValue = tagValue;
+    
+    // Force LGBTQ+ tag value to be consistent
+    if (isLgbtqTag) {
+        normalizedValue = 'LGBTQ+';
+    }
+    
+    // Extract all current tags from URL
+    try {
+        for (const [key, value] of urlParams.entries()) {
+            if (key === 'tags') {
+                currentTags.push(value);
+            }
+        }
+    } catch(e) {
+        console.error('Error parsing URL parameters', e);
+        currentTags = [];
+    }
     
     // Log for debugging
-    console.log('Toggle tag:', tagValue);
+    console.log('Toggle tag:', normalizedValue);
     console.log('Current tags:', currentTags);
     console.log('Raw URL params:', window.location.search);
     
-    // Special handling for LGBTQ+ tag (+ is a special character in URLs)
-    // We need to decode it properly as "+" gets converted to space in URL parameters
-    const normalizedCurrentTags = currentTags.map(tag => {
-        // Replace any spaces that might have been "+" in the original tag
-        return decodeURIComponent(tag).replace(/\s+/g, '+');
-    });
+    // Remove all tags from URL
+    urlParams.delete('tags');
     
-    console.log('Normalized tags:', normalizedCurrentTags);
+    // Check if the tag is already selected
+    let tagFound = false;
+    let newTags = [];
     
-    // Handle special case for LGBTQ+ tag
-    const normalizedTagValue = tagValue.includes('LGBTQ') ? tagValue.replace(/\s+/g, '+') : tagValue;
-    console.log('Normalized tag value:', normalizedTagValue);
+    // Process existing tags
+    for (const tag of currentTags) {
+        let normalizedCurrentTag = tag;
+        
+        // Special handling for LGBTQ+ tag
+        if (normalizedCurrentTag.toUpperCase().includes('LGBTQ')) {
+            normalizedCurrentTag = 'LGBTQ+';
+        }
+        
+        // If this is the tag we're toggling, mark it as found but don't add it to new tags
+        if (normalizedCurrentTag.toLowerCase() === normalizedValue.toLowerCase()) {
+            tagFound = true;
+        } else {
+            newTags.push(normalizedCurrentTag);
+        }
+    }
     
-    // Check using case-insensitive comparison
-    const tagIndex = normalizedCurrentTags.findIndex(
-        tag => tag.toLowerCase() === normalizedTagValue.toLowerCase()
-    );
-    console.log('Tag index:', tagIndex);
+    // If tag wasn't found in current tags, add it
+    if (!tagFound) {
+        newTags.push(normalizedValue);
+    }
     
-    if (tagIndex > -1) {
-        // Remove tag if already selected
-        console.log('Removing tag...');
-        const newTags = currentTags.filter((tag, index) => index !== tagIndex);
-        urlParams.delete('tags');
-        newTags.forEach(tag => urlParams.append('tags', tag));
-    } else {
-        // Add tag if not selected
-        console.log('Adding tag...');
-        urlParams.append('tags', tagValue);
+    // Add all tags back to URL
+    for (const tag of newTags) {
+        urlParams.append('tags', tag);
     }
     
     const searchInput = document.getElementById('resourceSearch');

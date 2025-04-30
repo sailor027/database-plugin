@@ -42,27 +42,45 @@ function dbPlugin_display_resources($atts = []) {
     $searchQuery = isset($_GET['kw']) ? htmlspecialchars($_GET['kw']) : '';
     $searchTerms = array_filter(explode(' ', $searchQuery));
     
-    // Check if LGBTQ+ tag is in the URL
+    // Handle tags from URL - handle both array and string formats
     $hasLgbtqTag = false;
-    if (isset($_GET['tags']) && is_array($_GET['tags'])) {
-        foreach ($_GET['tags'] as $tag) {
+    $rawTags = [];
+    
+    // Check if tags is a string (single tag) or array (multiple tags)
+    if (isset($_GET['tags'])) {
+        if (is_array($_GET['tags'])) {
+            $rawTags = $_GET['tags']; 
+        } else {
+            // Single tag passed as string
+            $rawTags = [$_GET['tags']];
+        }
+        
+        error_log("CSV Mode - Raw tags from URL before processing: " . print_r($rawTags, true));
+        
+        // Check for LGBTQ+ tag
+        foreach ($rawTags as $tag) {
             if (stripos($tag, 'lgbtq') !== false) {
                 $hasLgbtqTag = true;
                 error_log("CSV Mode - Found LGBTQ tag in URL: '$tag'");
-                
-                // Ensure "+" is preserved if present
-                $_GET['tags'] = array_map(function($t) {
-                    if (stripos($t, 'lgbtq') !== false) {
-                        return 'LGBTQ+'; // Force exact format
-                    }
-                    return $t;
-                }, $_GET['tags']);
             }
         }
     }
     
-    // Get selected tags
-    $selectedTags = isset($_GET['tags']) ? dbPlugin_sanitize_tag_array($_GET['tags']) : [];
+    // Normalize tags and handle LGBTQ+ special case
+    $selectedTags = [];
+    if (!empty($rawTags)) {
+        $selectedTags = array_map(function($tag) {
+            // Special handling for LGBTQ+ tag
+            if (stripos($tag, 'lgbtq') !== false) {
+                error_log("CSV Mode - Normalizing LGBTQ+ tag: " . $tag);
+                return 'LGBTQ+'; // Force exact format
+            }
+            
+            return sanitize_text_field(urldecode($tag));
+        }, $rawTags);
+    }
+    
+    error_log("CSV Mode - Tags after normalization: " . print_r($selectedTags, true));
     
     error_log("CSV Mode - Selected tags before filtering: " . print_r($selectedTags, true));
     
