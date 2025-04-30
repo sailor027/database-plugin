@@ -4,15 +4,23 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize tag selection
-    const tagButtons = document.querySelectorAll('.tag, .table-tag');
-    
-    // Add click event to tag buttons
-    tagButtons.forEach(function(button) {
-        button.addEventListener('click', function() {
-            const tagValue = button.getAttribute('data-tag');
-            toggleTagFilter(tagValue);
-        });
+    initializeEventListeners();
+});
+
+/**
+ * Initialize all event listeners
+ * This function adds event listeners to all interactive elements
+ */
+function initializeEventListeners() {
+    // Initialize tag selection - use event delegation for better performance
+    document.addEventListener('click', function(e) {
+        // Check if clicked element is a tag button
+        if (e.target && (e.target.classList.contains('tag') || e.target.classList.contains('table-tag'))) {
+            const tagValue = e.target.getAttribute('data-tag');
+            if (tagValue) {
+                toggleTagFilter(tagValue);
+            }
+        }
     });
     
     // Search form submission
@@ -23,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
             submitSearch();
         });
     }
-});
+}
 
 /**
  * Toggle tag selection and update URL
