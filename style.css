@@ -87,18 +87,31 @@ code {
     margin: 0;
     background-color: var(--grn);
     color: var(--blk);
-    border: none;
+    border: 2px solid transparent;
     border-radius: 0.25rem;
     cursor: pointer;
-    transition: all 0.5s;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
 }
 .tag:hover {
     background-color: var(--grn2);
     color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 .tag.selected {
     background-color: var(--grn2);
     color: white;
+    border: 2px solid var(--org);
+    font-weight: bold;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+/* Tag animation */
+.tag:active {
+    transform: translateY(0);
+    box-shadow: none;
 }
 
 /* Result count */
@@ -236,18 +249,28 @@ table.csv-table td {
     padding: 0.25rem 0.5rem;
     background-color: var(--grn);
     color: var(--blk);
-    border: none;
+    border: 2px solid transparent;
     border-radius: 0.25rem;
     cursor: pointer;
-    transition: all 0.5s;
+    transition: all 0.3s;
 }
 .table-tag:hover {
     background-color: var(--grn2);
     color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 .table-tag.selected {
     background-color: var(--grn2);
     color: white;
+    border: 2px solid var(--org);
+    font-weight: bold;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+.table-tag:active {
+    transform: translateY(0);
+    box-shadow: none;
 }
 
 /* -------------------------------------------------------------- */

@@ -91,9 +91,10 @@ function dbPlugin_display_resources_db($atts = []) {
         if (!empty($tag)) {
             $isSelected = in_array($tag, $selectedTags) ? 'selected' : '';
             printf(
-                '<button type="button" class="tag %s" data-tag="%s">%s</button>',
+                '<button type="button" class="tag %s" data-tag="%s" title="Click to %s filter">%s</button>',
                 htmlspecialchars($isSelected),
                 htmlspecialchars($tag),
+                $isSelected ? 'remove from' : 'add to',
                 htmlspecialchars($tag)
             );
         }
@@ -143,9 +144,10 @@ function dbPlugin_display_resources_db($atts = []) {
             if (!empty($tag)) {
                 $isSelected = in_array($tag, $selectedTags) ? 'selected' : '';
                 printf(
-                    '<button type="button" class="table-tag %s" data-tag="%s">%s</button>',
+                    '<button type="button" class="table-tag %s" data-tag="%s" title="Click to %s filter">%s</button>',
                     htmlspecialchars($isSelected),
                     htmlspecialchars($tag),
+                    $isSelected ? 'remove from' : 'add to',
                     htmlspecialchars($tag)
                 );
             }
