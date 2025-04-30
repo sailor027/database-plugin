@@ -271,29 +271,85 @@ class ResourceDatabaseHandler {
                 ";
                 
                 $tagPlaceholders = [];
+                $hasLgbtqTag = false;
+                
+                // Prepare normalized tag values and check for LGBTQ+ tag
                 for ($i = 0; $i < count($selectedTags); $i++) {
-                    $tagPlaceholders[] = ":tag$i";
                     // Convert to lowercase for case-insensitive comparison in SQL
-                    $params["tag$i"] = strtolower($selectedTags[$i]);
+                    $normalizedTag = strtolower(str_replace(' ', '+', $selectedTags[$i]));
+                    
+                    // Special handling for LGBTQ+ tag
+                    if (stripos($normalizedTag, 'lgbtq') !== false) {
+                        $hasLgbtqTag = true;
+                        error_log("DB Query - LGBTQ+ tag detected in filter: " . $selectedTags[$i]);
+                    }
+                    
+                    $tagPlaceholders[] = ":tag$i";
+                    $params["tag$i"] = $normalizedTag;
                 }
                 
                 // Note: We don't need the first IN clause which would match ANY of the tags
                 // $whereClauses[] = "t.name IN (" . implode(", ", $tagPlaceholders) . ")";
                 
                 // Always include resources that have ALL the selected tags, not just any of them
-                $tagCountSubquery = "
-                    SELECT resource_id 
-                    FROM resource_tags rt2 
-                    JOIN tags t2 ON rt2.tag_id = t2.id 
-                    WHERE LOWER(t2.name) IN (" . implode(", ", $tagPlaceholders) . ")
-                    GROUP BY resource_id 
-                    HAVING COUNT(DISTINCT LOWER(t2.name)) = " . count($selectedTags);
+                if ($hasLgbtqTag) {
+                    // Special SQL for LGBTQ+ case - we'll add custom handling
+                    $specialTagSubqueries = [];
                     
-                $whereClauses[] = "r.id IN ($tagCountSubquery)";
+                    for ($i = 0; $i < count($selectedTags); $i++) {
+                        $tagValue = $selectedTags[$i];
+                        if (stripos($tagValue, 'lgbtq') !== false) {
+                            // For LGBTQ+ tags, use ILIKE for partial matching
+                            $specialTagSubqueries[] = "
+                                EXISTS (
+                                    SELECT 1 FROM resource_tags rt_special 
+                                    JOIN tags t_special ON rt_special.tag_id = t_special.id 
+                                    WHERE rt_special.resource_id = r.id 
+                                    AND (
+                                        LOWER(t_special.name) ILIKE '%lgbtq%' 
+                                        OR LOWER(t_special.name) = 'lgbtq+'
+                                    )
+                                )
+                            ";
+                        } else {
+                            // For regular tags, use exact matching 
+                            $specialTagSubqueries[] = "
+                                EXISTS (
+                                    SELECT 1 FROM resource_tags rt_special 
+                                    JOIN tags t_special ON rt_special.tag_id = t_special.id 
+                                    WHERE rt_special.resource_id = r.id 
+                                    AND LOWER(t_special.name) = :special_tag$i
+                                )
+                            ";
+                            $params["special_tag$i"] = strtolower($tagValue);
+                        }
+                    }
+                    
+                    // Combine all conditions with AND
+                    $whereClauses[] = "(" . implode(" AND ", $specialTagSubqueries) . ")";
+                    
+                    // Debug
+                    error_log("DB Query - Using special LGBTQ+ handling with subqueries");
+                } else {
+                    // Regular tag filtering
+                    $tagCountSubquery = "
+                        SELECT resource_id 
+                        FROM resource_tags rt2 
+                        JOIN tags t2 ON rt2.tag_id = t2.id 
+                        WHERE LOWER(t2.name) IN (" . implode(", ", $tagPlaceholders) . ")
+                        GROUP BY resource_id 
+                        HAVING COUNT(DISTINCT LOWER(t2.name)) = " . count($selectedTags);
+                        
+                    $whereClauses[] = "r.id IN ($tagCountSubquery)";
+                }
                 
                 // Debug - log the SQL query and the tag values
                 error_log("Selected tags: " . implode(", ", $selectedTags));
-                error_log("Tag count subquery: " . $tagCountSubquery);
+                if (isset($tagCountSubquery)) {
+                    error_log("Tag count subquery: " . $tagCountSubquery);
+                } else {
+                    error_log("Using special tag handling for LGBTQ+");
+                }
                 error_log("Total tags selected: " . count($selectedTags));
             }
             
