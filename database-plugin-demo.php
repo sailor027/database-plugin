@@ -63,11 +63,12 @@ function dbPlugin_display_resources($atts = []) {
                 }
             }
 
-            // Check if row matches search terms and selected tags
+            // Check if row matches search terms - search all columns
             $matchesSearch = empty($searchTerms) || array_reduce($searchTerms, function($carry, $term) use ($row) {
                 return $carry && stripos(implode(' ', $row), $term) !== false;
             }, true);
             
+            // Check if row has ALL selected tags in the keywords column only (index 3)
             $matchesTags = empty($selectedTags);
             if (!empty($selectedTags) && isset($row[3])) {
                 $rowTags = array_map('trim', explode(',', $row[3]));
